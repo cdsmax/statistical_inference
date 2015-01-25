@@ -42,6 +42,7 @@ vr_theory <- std_theory^2
 # generate the sample data
 data_sim <- replicate(num_sim, rexp(num_samples, lambda))
 
+
 ```
   
   
@@ -50,19 +51,13 @@ data_sim <- replicate(num_sim, rexp(num_samples, lambda))
 # record the means for each of sample data
 mn_sim_all <- apply(data_sim, 2, mean) 
 
+# normal dist
+ndist <- rnorm(num_sim * num_samples, mean=mean(mn_sim_all), sd=sd(mn_sim_all))
+
 mn_sim <- mean(mn_sim_all)
 
 ```
-  
-  
-The distribution of means from all samples:  
-```{r}
-hist(
-  mn_sim_all,
-  main='Histogram of means of the simulated values'
-)
-```
-  
+    
   
 Mean of the simulation samples:  
 ```{r}
@@ -148,7 +143,6 @@ var(mn_sim_all)
   
 Mean and Variance of the Normal Distribution data:  
 ```{r}
-ndist <- rnorm(num_sim * num_samples, mean=mean(mn_sim_all), sd=sd(mn_sim_all))
 mean(ndist)
 var(ndist)
 ```
