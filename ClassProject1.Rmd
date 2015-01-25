@@ -1,0 +1,158 @@
+---
+title: "Statistical Inference hw1"
+author: "Max Gribov"
+date: "Sunday, January 25, 2015"
+output:
+  html_document: default
+  pdf_document: default
+---
+
+### Investigate the exponential distribution in R and compare it with the Central Limit Theorem.
+
+#### Goals and parameters from the assignment page
+You will investigate the distribution of averages of 40 exponentials. 
+Note that you will need to do a thousand simulations.
+
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponentials.  
+You should  
+**Question 1. Show the sample mean and compare it to the theoretical mean of the distribution.**  
+**Question 2. Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.**  
+**Question 3. Show that the distribution is approximately normal.**  
+
+In point 3, focus on the difference between the distribution of a large collection of random exponentials and the distribution of a large collection of averages of 40 exponentials.  
+
+The exponential distribution can be simulated in R with rexp(n, lambda) where lambda is the rate parameter.   
+
+#### Data Set up
+The mean of exponential distribution is 1/lambda and the standard deviation is also 1/lambda.  
+Set lambda = 0.2 for all of the simulations.   
+
+```{r cache=TRUE}
+set.seed(5)
+num_sim <- 1000
+num_samples <- 40
+
+lambda <- 0.2
+
+# known properties of exponential dist
+mn_theory <- 1/lambda
+std_theory <- (1/lambda)/sqrt(num_samples)
+vr_theory <- std_theory^2
+
+# generate the sample data
+data_sim <- replicate(num_sim, rexp(num_samples, lambda))
+
+```
+  
+  
+#### Question 1: Show the sample mean and compare it to the theoretical mean of the distribution.  
+```{r}
+# record the means for each of sample data
+mn_sim_all <- apply(data_sim, 2, mean) 
+
+mn_sim <- mean(mn_sim_all)
+
+```
+  
+  
+The distribution of means from all samples:  
+```{r}
+hist(
+  mn_sim_all,
+  main='Histogram of means of the simulated values'
+)
+```
+  
+  
+Mean of the simulation samples:  
+```{r}
+mn_sim
+```
+  
+  
+Mean of the exponential distribution:  
+```{r}
+mn_theory
+```
+##### Conclusion 1: The mean values of the simulation are close to the mean values of the theoretical exponential distribution.  
+  
+  
+#### Question 2: Show how variable the sample is (via variance) and compare it to the theoretical variance of the distribution.  
+```{r}
+# get the sim data stats
+std_sim_all <- sd(mn_sim_all)
+vr_sim_all <- var(mn_sim_all)
+```
+  
+  
+Variability of the simulated data  
+```{r}
+vr_sim_all
+```
+  
+  
+Variability of exponential distribution  
+```{r}
+vr_theory
+```
+##### Conclusion 2: The variability values of the simulation are close to the variability values of the theoretical exponential distribution.  
+  
+
+#### Question 3: Show that the distribution is approximately normal.  
+```{r}
+# we will use the density of the means
+# http://www.statmethods.net/graphs/density.html
+
+d <- density(mn_sim_all, kernel="gaussian")
+
+# plot the distribution of the means
+plot(
+  d,
+  main = 'Density of means of the samles vs density of Normal Distribution'
+)
+
+# now overlay a line for normal distribution
+
+# create the x-vals from the means, between their min and max
+x <- seq(
+  min(mn_sim_all),
+  max(mn_sim_all),
+  length=num_samples
+)
+
+# the normal dist density
+d_ndist <- dnorm(
+  x,
+  mean=mean(mn_sim_all),
+  sd=sd(mn_sim_all)
+)
+
+# add the lines
+lines(x, d_ndist, col="red")
+
+legend(
+  'topright',
+  c('Means of the samples', 'Normal Distribution'),
+  lty = 1,
+  col = c('black', 'red')
+)
+
+```
+  
+Mean and Variance of the simulated data:  
+```{r}
+mean(mn_sim_all)
+var(mn_sim_all)
+```
+  
+  
+Mean and Variance of the Normal Distribution data:  
+```{r}
+ndist <- rnorm(num_sim * num_samples, mean=mean(mn_sim_all), sd=sd(mn_sim_all))
+mean(ndist)
+var(ndist)
+```
+  
+
+##### Conclusion 3: We can see that the density of means of the samples and that of the Normal Distribution are quite similar. Mean and variance values of the Normal Distribution and the simulated values are also close.
+
